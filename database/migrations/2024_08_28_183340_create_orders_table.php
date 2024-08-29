@@ -15,10 +15,6 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->uuid('gateway_order_id');
-            $table->string('name')->nullable();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('address')->nullable();
             $table->decimal('total')->nullable()->default(0);
             $table->enum('status', OrderStatus::values());
             $table->json('details')->nullable();

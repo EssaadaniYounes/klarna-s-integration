@@ -24,7 +24,7 @@ class ProductDto
         return new ProductDto(
             fake()->name(),
             fake()->text(),
-            fake()->numberBetween(100, 1000),
+            fake()->numberBetween(500, 1000),
             $imageUrl ?? fake()->imageUrl(640, 480)
         );
     }

@@ -22,10 +22,7 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'required|max:100',
-            'address' => 'required',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|min:9',
+            'gateway' => 'required|in:klarna',
             'quantity' => 'required|min:1',
             'product_id' => 'required|exists:products,id',
         ];
@@ -34,11 +31,8 @@ class CheckoutRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'name.required' => 'Name is required',
-            'name.max' => 'Name is too long',
-            'address.required' => 'Address is required',
-            'email.email' => 'Email is not valid',
-            'phone.min' => 'Phone is too short',
+            'gateway.required' => 'Gateway is required',
+            'gateway.in' => 'Invalid gateway',
             'quantity.min' => 'Quantity is too short',
             'product_id.exists' => 'Product not found',
         ];

@@ -3,10 +3,17 @@
 return [
     'gateway' => env('PAYMENT_GATEWAY', 'klarna'),
 
-    'credentials' => [
+    'gateways' => [
         'klarna' => [
-            'api_key' => env('KLARNA_API_KEY'),
-            'api_secret' => env('KLARNA_API_SECRET'),
+            'api_url' => env('KLARNA_API_URL', 'https://api.playground.klarna.com/'),
+            'username' => env('KLARNA_API_USERNAME'),
+            'password' => env('KLARNA_API_PASSWORD'),
+            'redirecting' => [
+                'terms' => env('TERMS_URL'),
+                'checkout' => env('CHECKOUT_URL'),
+                'confirmation' => env('CONFIRMATION_URL'),
+                'push' => env('PUSH_URL'),
+            ]
         ],
     ]
 ];
