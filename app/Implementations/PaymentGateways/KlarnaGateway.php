@@ -2,21 +2,39 @@
 
 namespace App\Implementations\PaymentGateways;
 use App\Contracts\Payment\IPaymentGateway;
+use App\Exceptions\EmptyPaymentCredentialsConfiguration;
 use App\Models\Product;
+use App\Strategies\OrderStrategy;
+use Http;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use PHPUnit\Framework\UnknownTypeException;
+use SebastianBergmann\Diff\ConfigurationException;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 
 class KlarnaGateway implements IPaymentGateway
 {
-    private string $api; // = 'https://api.playground.klarna.com/checkout/v3/orders';
+    private string $api;
     private string $username;
     private string $password;
 
-    public function __construct(){
-        $this->api = config('')
+    public function __construct(public OrderStrategy $orderStrategy)
+    {
+        $this->api = config('payment.gateways.klarna.api_url');
+        $this->username = config('payment.gateways.klarna.username');
+        $this->password = config('payment.gateways.klarna.password');
+        if ($this->api == null || $this->username == null || $this->password == null) {
+            //TODO: add handler
+            throw new EmptyPaymentCredentialsConfiguration('Klarna credentials not configured');
+        }
     }
 
-    public function placeOrder(Product $product, int $quantity): array
+    public function placeOrder(Product $product, int $quantity): mixed
     {
+        info("Placing order for product " . $product->name . " with quantity " . $quantity . " using Klarna gateway");
         $amount = $quantity * $product->price;
+
         $purchase_country = "US";
         $purchase_currency = "USD";
         $local = "en-US";
@@ -36,12 +54,9 @@ class KlarnaGateway implements IPaymentGateway
             ]
         ];
 
-        $merchant_urls = [
-            'terms' => 'https://dashboard.ngrok.com/get-started/setup/windows#terms',  // Make sure this URL is valid and returns content
-            'checkout' => 'https://dashboard.ngrok.com/get-started/setup/windows#checkout?klarna_order_id={checkout.order.id}',  // This should be the checkout page
-            'confirmation' => 'https://81fd-196-84-1-34.ngrok-free.app/confirm?klarna_order_id={checkout.order.id}',  // This URL must be valid and accessible
-            'push' => 'https://81fd-196-84-1-34.ngrok-free.app/api/v1/handle-webhook?klarna_order_id={checkout.order.id}',  // Try using a stable URL
-        ];
+        $confirmationURL = config('payment.gateways.klarna.redirecting.confirmation');
+        $pushURL = config('payment.gateways.klarna.redirecting.push');
+
         $data = [
             'purchase_country' => $purchase_country,
             'purchase_currency' => $purchase_currency,
@@ -49,13 +64,52 @@ class KlarnaGateway implements IPaymentGateway
             'order_amount' => $order_amount,
             'order_tax_amount' => $order_tax_amount,
             'order_lines' => $order_lines,
-            'merchant_urls' => $merchant_urls
+            'merchant_urls' => [
+                'terms' => config('payment.gateways.klarna.redirecting.terms'),
+                'checkout' => config('payment.gateways.klarna.redirecting.checkout'),
+                'confirmation' => "{$confirmationURL}?klarna_order_id={checkout.order.id}",
+                'push' => "{$pushURL}?klarna_order_id={checkout.order.id}",
+            ]
         ];
-        return [];
+
+        $response = Http::withBasicAuth($this->username, $this->password)
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Klarna-Partner', 'string')
+            ->withBody(json_encode($data))
+            ->post("{$this->api}/checkout/v3/orders");
+
+        return $response->json();
     }
 
     public function handleWebhook(array $data): void
     {
-        // TODO: Implement handleWebhook() method.
+        info("Klarna webhook triggered", [$data]);
+
+        $orderId = $data['klarna_order_id'];
+
+        $response = Http::withBasicAuth($this->username, $this->password)
+            ->withHeader('Content-Type', 'application/json')
+            ->withHeader('Klarna-Partner', 'string')
+            ->withBody(json_encode($data))
+            ->get("{$this->api}/checkout/v3/orders/{$orderId}");
+
+        if($response->getStatusCode() == SymfonyResponse::HTTP_NOT_FOUND){
+            Log::error("Order {$orderId} not found");
+            throw new ResourceNotFoundException("Order {$orderId} not found");
+
+        } else if ($response->getStatusCode() != SymfonyResponse::HTTP_OK) {
+            Log::error("Klarna error", [
+                'code' => $response->getStatusCode(),
+                'body' => $response->body(),
+            ]);
+            throw new UnknownTypeException("Klarna error");
+
+        }
+        $order = $response->json();
+        info("Requested order {$orderId} status", [$order]);
+        $orderStatusHandler = $this->orderStrategy
+                                    ->determineOrderHandler($order['status']);
+
+        $orderStatusHandler->update($orderId, $order);
     }
 }
