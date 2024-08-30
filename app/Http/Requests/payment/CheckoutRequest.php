@@ -22,7 +22,7 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'gateway' => 'required|in:klarna',
+            'payment_gateway' => 'required|in:klarna',
             'quantity' => 'required|min:1',
             'product_id' => 'required|exists:products,id',
         ];
@@ -31,8 +31,8 @@ class CheckoutRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'gateway.required' => 'Gateway is required',
-            'gateway.in' => 'Invalid gateway',
+            'payment_gateway.required' => 'Gateway is required',
+            'payment_gateway.in' => 'Invalid gateway',
             'quantity.min' => 'Quantity is too short',
             'product_id.exists' => 'Product not found',
         ];

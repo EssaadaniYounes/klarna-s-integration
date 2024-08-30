@@ -49,4 +49,5 @@ class OrderStatusAdapter
         //TODO: add other gateways when needed
         throw new \Exception('Unsupported payment gateway');
     }
+    
 }

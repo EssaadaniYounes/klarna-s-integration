@@ -18,6 +18,7 @@ class Order extends Model
     ];
 
     protected $casts = [
-        'status' => OrderStatus::class
+        'status' => OrderStatus::class,
+        'details' => 'array'
     ];
 }
