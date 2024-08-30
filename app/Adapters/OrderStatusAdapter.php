@@ -16,11 +16,11 @@ class OrderStatusAdapter
 
         if ($gateway == PaymentGateways::KLARNA->value) {
             return match ($status) {
-                'CHECKOUT_INCOMPLETE' => OrderStatus::PENDING,
+                'CHECKOUT_INCOMPLETE', 'checkout_incomplete' => OrderStatus::PENDING,
                 'checkout_complete' => OrderStatus::PAID,
                 'checkout_cancelled' => OrderStatus::CANCELLED,
                 'checkout_failed' => OrderStatus::FAILED,
-                default => throw new \Exception('Invalid Klarna status'),
+                default => throw new \Exception("Invalid Klarna status [{$status}]"),
             };
         }
         //TODO: add other gateways when needed

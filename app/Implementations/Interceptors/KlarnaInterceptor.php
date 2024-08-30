@@ -5,7 +5,6 @@ namespace App\Implementations\Interceptors;
 use App\Contracts\Payment\IPaymentInterceptor;
 use App\Enums\OrderStatus;
 use App\Models\Order;
-use Illuminate\Http\JsonResponse;
 
 class KlarnaInterceptor implements IPaymentInterceptor
 {
