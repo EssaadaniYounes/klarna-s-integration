@@ -4,5 +4,11 @@ namespace App\Contracts\Crud;
 
 interface IDelete
 {
-    public function delete($identifier): bool;
+    /**
+     * Delete the specified resource.
+     *
+     * @param mixed $identifier
+     * @return bool
+     */
+    public function delete(mixed $identifier): bool;
 }
