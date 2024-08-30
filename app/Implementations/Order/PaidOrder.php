@@ -18,7 +18,9 @@ class PaidOrder implements IOrderStatus
         $order = Order::query()
             ->where('gateway_order_id', $orderId)
             ->first();
-
+        if($order->status == OrderStatus::PAID) {
+            return $order;
+        }
         $order->status = OrderStatus::PAID;
         $order->details = json_encode($data);
         $order->save();

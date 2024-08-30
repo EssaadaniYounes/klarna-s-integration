@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Contracts\Payment;
-use App\Dtos\CheckoutRequestDto;
 use App\Models\Product;
 
 interface IPaymentGateway{
