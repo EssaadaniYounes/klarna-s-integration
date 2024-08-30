@@ -16,6 +16,7 @@ class KlarnaInterceptor implements IPaymentInterceptor
             Order::create([
                 'gateway_order_id' => $data['order_id'],
                 'status' => OrderStatus::PENDING,
+                'total' => $data['order_amount'],
                 'details' => json_encode($data),
             ]);
             return [

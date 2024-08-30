@@ -48,6 +48,7 @@ class KlarnaGateway implements IPaymentGateway
             [
                 'type' => 'physical',
                 'name' => $product->name,
+                'image_url' => $product->image_url,
                 'quantity' => $quantity,
                 'unit_price' => $product->price,
                 'tax_rate' => 0,
