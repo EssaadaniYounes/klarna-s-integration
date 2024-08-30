@@ -2,7 +2,6 @@
 
 namespace App\Enums;
 
-//TODO: each status has it's own handler
 enum OrderStatus: string
 {
     case PENDING = 'pending';

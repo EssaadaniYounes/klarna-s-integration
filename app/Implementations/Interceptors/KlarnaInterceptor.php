@@ -13,7 +13,7 @@ class KlarnaInterceptor implements IPaymentInterceptor
     public function handle(mixed $data): mixed
     {
         if(isset($data['html_snippet']) && isset($data['order_id'])) {
-            $order = Order::create([
+            Order::create([
                 'gateway_order_id' => $data['order_id'],
                 'status' => OrderStatus::PENDING,
                 'details' => json_encode($data),

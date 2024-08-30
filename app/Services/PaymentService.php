@@ -11,7 +11,7 @@ class PaymentService
     public function __construct(
         public IPaymentGateway $paymentGateway,
         public ProductService $productService,
-        public IPaymentInterceptor $klarnaInterceptor,
+        public IPaymentInterceptor $paymentInterceptor,
         public PaymentGatewayStrategy $paymentGatewayStrategy
     ) {
     }
@@ -21,7 +21,7 @@ class PaymentService
         $product = $this->productService->getById($productId);
         $order = $this->paymentGateway->placeOrder($product, $quantity);
 
-        return $this->klarnaInterceptor->handle($order);
+        return $this->paymentInterceptor->handle($order);
     }
 
     public function handleWebhook($payload)

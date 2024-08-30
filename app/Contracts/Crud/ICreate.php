@@ -2,7 +2,14 @@
 
 namespace App\Contracts\Crud;
 
+
 interface ICreate
 {
-    public function create($data): void;
+    /**
+     * Create a new model instance.
+     *
+     * @param array $data
+     * @return void
+     */
+    public function create(array $data): void;
 }

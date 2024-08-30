@@ -3,6 +3,7 @@
 namespace App\Adapters;
 use App\Dtos\OrderUpdatedDto;
 use App\Enums\OrderStatus;
+use App\Enums\PaymentGateways;
 
 class OrderStatusAdapter
 {
@@ -13,7 +14,7 @@ class OrderStatusAdapter
             throw new \Exception('Payment gateway not configured');
         }
 
-        if ($gateway == 'klarna') {
+        if ($gateway == PaymentGateways::KLARNA->value) {
             return match ($status) {
                 'CHECKOUT_INCOMPLETE' => OrderStatus::PENDING,
                 'checkout_complete' => OrderStatus::PAID,
@@ -34,7 +35,7 @@ class OrderStatusAdapter
             throw new \Exception('Payment gateway not configured');
         }
 
-        if ($gateway == 'klarna') {
+        if ($gateway == PaymentGateways::KLARNA->value) {
             return new OrderUpdatedDto(
                 $data['order_id'],
                 $data['order_lines'][0]['name'],

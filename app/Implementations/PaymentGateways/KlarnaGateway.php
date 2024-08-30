@@ -3,6 +3,7 @@
 namespace App\Implementations\PaymentGateways;
 use App\Contracts\Payment\IPaymentGateway;
 use App\Exceptions\EmptyPaymentCredentialsConfiguration;
+use App\Exceptions\WebhookValidationException;
 use App\Models\Product;
 use App\Strategies\OrderStrategy;
 use Http;
@@ -18,14 +19,15 @@ class KlarnaGateway implements IPaymentGateway
     private string $api;
     private string $username;
     private string $password;
+    private string $klarnaSecretKey;
 
     public function __construct(public OrderStrategy $orderStrategy)
     {
         $this->api = config('payment.gateways.klarna.api_url');
         $this->username = config('payment.gateways.klarna.username');
         $this->password = config('payment.gateways.klarna.password');
+        $this->klarnaSecretKey = config('payment.gateways.klarna.secret_key');
         if ($this->api == null || $this->username == null || $this->password == null) {
-            //TODO: add handler
             throw new EmptyPaymentCredentialsConfiguration('Klarna credentials not configured');
         }
     }
@@ -68,7 +70,7 @@ class KlarnaGateway implements IPaymentGateway
                 'terms' => config('payment.gateways.klarna.redirecting.terms'),
                 'checkout' => config('payment.gateways.klarna.redirecting.checkout'),
                 'confirmation' => "{$confirmationURL}?klarna_order_id={checkout.order.id}",
-                'push' => "{$pushURL}?klarna_order_id={checkout.order.id}",
+                'push' => "{$pushURL}?klarna_order_id={checkout.order.id}&secretToken={$this->klarnaSecretKey}",
             ]
         ];
 
@@ -84,8 +86,19 @@ class KlarnaGateway implements IPaymentGateway
     public function handleWebhook(array $data): void
     {
         info("Klarna webhook triggered", [$data]);
+        $secretToken = $data['secretToken'];
+
+        if ($secretToken != $this->klarnaSecretKey) {
+            Log::error("Invalid secret token");
+            throw new WebhookValidationException("Invalid secret token");
+        }
 
         $orderId = $data['klarna_order_id'];
+
+        if ($orderId == null || $orderId == "") {
+            Log::error("Klarna order id not found");
+            throw new WebhookValidationException("Klarna order id not found");
+        }
 
         $response = Http::withBasicAuth($this->username, $this->password)
             ->withHeader('Content-Type', 'application/json')
