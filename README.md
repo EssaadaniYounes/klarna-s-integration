@@ -1,66 +1,62 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Klarna's API Integration
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Klarna's API Integration is lightweight API that's integrated with the Klarna gateway for a simple checkout and webhook handling
 
-## About Laravel
+## Requirements
+`php > 8.2` \
+`composer` \
+`Docker & Daemon` \
+`Klarna Account`
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Installation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- Clone the project
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+https://github.com/EssaadaniYounes/klarna-s-integration.git
+```
+- Install and update packages
+```bash
+composer update
+```
+- Create .env file and copy the content of the .env.example into it
+```bash
+cp .env.example .env
+```
+Replace the variables with your values. Preferably before you do this to have a Klarna account and grap the username & password from it.\
+you can found them here 
+[Klarna Users](https://portal.playground.klarna.com/users/).
+## Running the App
+Run the following command to create MySQL and your app containers
+```bash
+./vendor/bin/sail up -d
+```
+Probably in windows you'll get this error
+```bash
+🛑/bin/bash: C:\..\vendor\bin\/../laravel/sail/bin/sail: No such file or directory
+```
+To solve it use this command instead
+```bash
+bash ./vendor/laravel/sail/bin/sail up -d
+```
+Now the images are pulled and the containers are running.
 
-## Learning Laravel
+Use this command to run the migration and seeders
+```
+./vendor/bin/sail artisan migrate:fresh --seed
+```
+If it say Sail isn't running this probably only for windows users. So go to your docker desktop and containers tab. Expand the `laravel.test` container and go to `Exec` tab.
+then run
+```
+php artisan migrate:fresh --seed
+```
+Now everything should work fine visit [http://localhost:8000/api/v1/products](http://localhost:8000/api/v1/products) and you can see a list of four product!
+## Testing
+If you want to test only the API\
+In your terminal run the following command
+```
+./vendor/bin/sail artisan test
+```
+If it didn't work again for windows just follow pervious steps and write the `php artisan test` command and see tests running.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+In the other hand to test it with the front-end we require to clone this [Project](https://github.com/EssaadaniYounes/klarna-intergration-client.git). and follow it's instruction to run it.
