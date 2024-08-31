@@ -12,6 +12,7 @@ use Tests\TestCase;
 class KlarnaInterceptorTest extends TestCase
 {
     private KlarnaInterceptor $klarnaInterceptor;
+    use RefreshDatabase;
 
     public function setUp(): void
     {
